@@ -89,9 +89,31 @@ func TestReadPair(t *testing.T) {
 }
 
 func TestReadObject(t *testing.T) {
-	lexer := NewLexer(`{"a": 149,"b":false,"c":"hello" }`)
-	ret := lexer.readObject()
-	if &ret == nil {
+	var lexer *Lexer
+	var ret JSONObject
+	
+	lexer = NewLexer(`{"a": 149,"b":false,"c":"hello" }`)
+	ret = lexer.readObject()
+	if len(ret.pairs) != 3 {
+		t.Fail()
+	}
+	
+	if ret.pairs["a"] != 149 {
+		t.Fail()
+	}
+
+	if ret.pairs["b"] != false {
+		t.Fail()
+	}
+
+	if ret.pairs["c"] != "hello" {
+		t.Fail()
+	}
+
+	// test leading and trailing blanks
+	lexer = NewLexer(` {"a": 149} `)
+	ret = lexer.readObject()
+	if len(ret.pairs) != 1 {
 		t.Fail()
 	}
 	// for name, value := range ret.pairs {

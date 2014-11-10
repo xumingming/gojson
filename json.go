@@ -119,6 +119,7 @@ func (this *Lexer) readBoolean() bool {
 }
 
 func (this *Lexer) readObject() JSONObject {
+	this.skipBlank()
 	this.accept('{')
 	var ret JSONObject;
 	ret.pairs = map[string]interface{}{}
