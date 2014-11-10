@@ -47,8 +47,39 @@ func (this *Lexer) nextChar() {
 func (this *Lexer) readString() string {
 	var ret bytes.Buffer
 	this.accept('"')
-	for !this.match('"') {
-		ret.WriteByte(this.char)
+	escaping := false
+	for !this.match('"') || escaping {
+		if this.match('\\') {
+			escaping = true
+			this.nextChar()
+			continue
+		}
+
+		var actualChar uint8
+		actualChar = this.char
+		if escaping {
+			switch(this.char) {
+			case '\\':
+				actualChar = '\\'
+			case 'b':
+				actualChar = '\b'
+			case 'f':
+				actualChar = '\f'
+			case 'n':
+				actualChar = '\n'
+			case 'r':
+				actualChar = '\r'
+			case 't':
+				actualChar = '\t'
+			case '"':
+				actualChar = '"'
+			}
+
+			escaping = false
+		}
+
+		// FIXME deal with unicode
+		ret.WriteByte(actualChar)
 		this.nextChar()
 	}
 
@@ -72,8 +103,9 @@ func (this *Lexer) readInt() int {
 
 func (this *Lexer) readBoolean() bool {
 	var ret bytes.Buffer
-	if this.char == 't' || this.char == 'f' {
-		for this.char != ',' && this.char != ' ' && this.char != '}' {
+	if this.match('t') || this.match('f') {
+//		for this.char != ',' && this.char != ' ' && this.char != '}' {
+		for this.char != ',' && !isBlank(this.char) && this.char != '}' && this.char != 0 {			
 			ret.WriteByte(this.char)
 			this.nextChar()
 		}
