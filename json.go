@@ -13,11 +13,14 @@ type Lexer struct {
 	char    uint8
 }
 
-func (this *Lexer) Init(content string) {
-	this.content = content
-	this.index = -1
-	this.char = 99
-	this.nextChar()
+func NewLexer(content string) *Lexer {
+	lexer := new(Lexer)
+	lexer.content = content
+	lexer.index = -1
+	lexer.char = 0
+	lexer.nextChar()
+
+	return lexer
 }
 
 func (this *Lexer) match(x uint8) bool {
@@ -165,8 +168,7 @@ func isBlank (x uint8) bool {
 }
 
 func Parse(str string) interface{} {
-	lexer := new(Lexer)
-	lexer.Init(str)
+	lexer := NewLexer(str)
 	if lexer.match('{') {
 		return lexer.readObject()
 	} else if lexer.match('[') {

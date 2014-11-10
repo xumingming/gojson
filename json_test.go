@@ -30,8 +30,7 @@ func TestReadPair(t *testing.T) {
 }
 
 func TestReadObject(t *testing.T) {
-	lexer := new(Lexer)
-	lexer.Init(`{"a": 149,"b":false,"c":"hello" }`)
+	lexer := NewLexer(`{"a": 149,"b":false,"c":"hello" }`)
 	ret := lexer.readObject()
 	if &ret == nil {
 		t.Fail()
@@ -42,8 +41,7 @@ func TestReadObject(t *testing.T) {
 }
 
 func TestReadNestedObject(t *testing.T) {
-	lexer := new(Lexer)
-	lexer.Init(`{"a":149,"b":false,"c":"hello","d":[1,2,"foo"],"e":{"hello":"world"}}`)
+	lexer := NewLexer(`{"a":149,"b":false,"c":"hello","d":[1,2,"foo"],"e":{"hello":"world"}}`)
 	ret := lexer.readObject()
 	if &ret == nil {
 		t.Fail()
@@ -55,8 +53,7 @@ func TestReadNestedObject(t *testing.T) {
 
 
 func TestReadArray(t *testing.T) {
-	lexer := new(Lexer)
-	lexer.Init(`[1,2,"hello"]`)
+	lexer := NewLexer(`[1,2,"hello"]`)
 	ret := lexer.readArray()
 	if &ret == nil {
 		t.Fail()
