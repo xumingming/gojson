@@ -82,7 +82,6 @@ func (this *Lexer) readBoolean() bool {
 	}
 }
 
-//
 func (this *Lexer) readObject() JSONObject {
 	this.accept('{')
 	var ret JSONObject;
@@ -101,7 +100,6 @@ func (this *Lexer) readObject() JSONObject {
 	return ret
 }
 
-//
 func (this *Lexer) readArray() JSONArray {
 	this.accept('[')
 	var ret JSONArray
@@ -165,7 +163,7 @@ func isBlank (x uint8) bool {
 	return x == ' ' || x == '\t' || x == '\r' || x == '\n'
 }
 
-func parse(str string) interface{} {
+func Parse(str string) interface{} {
 	lexer := new(Lexer)
 	lexer.Init(str)
 	if lexer.match('{') {
