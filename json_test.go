@@ -7,6 +7,18 @@ import (
 
 func TestReadObject(t *testing.T) {
 	lexer := new(Lexer)
+	lexer.Init(`{"a": 149,"b":false,"c":"hello" }`)
+	ret := lexer.readObject()
+	if &ret == nil {
+		t.Fail()
+	}
+	for name, value := range ret.pairs {
+		fmt.Println(name, ": ", value)
+	}
+}
+
+func TestReadNestedObject(t *testing.T) {
+	lexer := new(Lexer)
 	lexer.Init(`{"a":149,"b":false,"c":"hello","d":[1,2,"foo"],"e":{"hello":"world"}}`)
 	ret := lexer.readObject()
 	if &ret == nil {

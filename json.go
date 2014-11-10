@@ -95,6 +95,7 @@ func (this *Lexer) readObject() JSONObject {
 		name, value = this.readPair()
 		ret.pairs[name] = value
 	}
+	this.skipBlank()
 	this.accept('}')
 
 	return ret
@@ -147,9 +148,21 @@ func (this *Lexer) readValue() (value interface{}) {
 
 func (this *Lexer) readPair() (name string, value interface{}) {
 	name = this.readString()
-	this.next_char()
+	this.skipBlank()
+	this.accept(':')
+	this.skipBlank()
 	value = this.readValue()
 	return
+}
+
+func (this *Lexer) skipBlank() {
+	for ; isBlank(this.char) ; {
+		this.next_char()
+	}
+}
+
+func isBlank (x uint8) bool {
+	return x == ' ' || x == '\t' || x == '\r' || x == '\n'
 }
 
 func parse(str string) interface{} {
