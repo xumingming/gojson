@@ -83,17 +83,17 @@ func (this *Lexer) readString() string {
                 actualChar = '"'
                 ret.WriteByte(actualChar)               
             case 'u':
-				i32 := int32(0)
-				for i := 0; i < 4; i++ {
-					i32 *= 16
-					this.nextChar()
-					if this.char <= '9' {
-						i32 += int32(this.char - '0')
-					} else {
-						i32 += int32(this.char - 'a' + 10)
-					}
-				}
-				ret.WriteRune(i32)				
+                i32 := int32(0)
+                for i := 0; i < 4; i++ {
+                    i32 *= 16
+                    this.nextChar()
+                    if this.char <= '9' {
+                        i32 += int32(this.char - '0')
+                    } else {
+                        i32 += int32(this.char - 'a' + 10)
+                    }
+                }
+                ret.WriteRune(i32)              
             }
 
             escaping = false
