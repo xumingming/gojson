@@ -3,6 +3,7 @@ package gojson
 import (
 	"fmt"
 	"strconv"
+	"bytes"
 )
 
 type Lexer struct {
@@ -40,26 +41,26 @@ func (this *Lexer) nextChar() {
 	}
 }
 
-func (this *Lexer) readString() (ret string) {
-	ret = ""
+func (this *Lexer) readString() string {
+	var ret bytes.Buffer
 	this.accept('"')
 	for !this.match('"') {
-		ret += string(this.char)
+		ret.WriteByte(this.char)
 		this.nextChar()
 	}
 
 	this.accept('"')
-	return
+	return ret.String()
 }
 
 func (this *Lexer) readInt() int {
-	ret := ""
+	var ret bytes.Buffer
 	for '0' <= this.char && this.char <= '9' {
-		ret += string(this.char)
+		ret.WriteByte(this.char)
 		this.nextChar()
 	}
 
-	i, error := strconv.Atoi(ret)
+	i, error := strconv.Atoi(ret.String())
 	if error != nil {
 		fmt.Printf("the error is: %v", error)
 	}
@@ -67,15 +68,15 @@ func (this *Lexer) readInt() int {
 }
 
 func (this *Lexer) readBoolean() bool {
-	ret := ""
+	var ret bytes.Buffer
 	if this.char == 't' || this.char == 'f' {
 		for this.char != ',' && this.char != ' ' && this.char != '}' {
-			ret += string(this.char)
+			ret.WriteByte(this.char)
 			this.nextChar()
 		}
 	}
 
-	if ret == "true" {
+	if ret.String() == "true" {
 		return true
 	} else {
 		return false
