@@ -35,13 +35,15 @@ func (this *Lexer) accept(x uint8) {
     }
 }
 
-func (this *Lexer) nextChar() {
+func (this *Lexer) nextChar() uint8 {
     this.index += 1
     if this.index < len(this.content) {
         this.char = this.content[this.index]
     } else {
         this.char = 0
     }
+
+	return this.char
 }
 
 func (this *Lexer) readString() string {
@@ -81,19 +83,17 @@ func (this *Lexer) readString() string {
                 actualChar = '"'
                 ret.WriteByte(actualChar)               
             case 'u':
-                var unicodeBuf bytes.Buffer
-                this.nextChar()
-                unicodeBuf.WriteByte(this.char)
-                this.nextChar()
-                unicodeBuf.WriteByte(this.char)
-                this.nextChar()
-                unicodeBuf.WriteByte(this.char)
-                this.nextChar()
-                unicodeBuf.WriteByte(this.char)
-                i, _ := strconv.ParseInt(unicodeBuf.String(), 16, 0)
-                i32 := int32(i)
-                str := string([]rune{i32})
-                ret.WriteString(str)
+				i32 := int32(0)
+				for i := 0; i < 4; i++ {
+					i32 *= 16
+					this.nextChar()
+					if this.char <= '9' {
+						i32 += int32(this.char - '0')
+					} else {
+						i32 += int32(this.char - 'a' + 10)
+					}
+				}
+				ret.WriteRune(i32)				
             }
 
             escaping = false
