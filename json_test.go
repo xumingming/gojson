@@ -20,6 +20,12 @@ func TestReadInt(t *testing.T) {
         t.Fail()
     }
 
+	// test negative number
+    lexer = NewLexer("-100")
+    i = lexer.readInt()
+    if i != -100 {
+        t.Fail()
+    }
 }
 
 func TestReadString(t *testing.T) {

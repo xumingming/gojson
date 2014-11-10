@@ -31,7 +31,7 @@ func (this *Lexer) accept(x uint8) {
     if this.match(x) {
         this.nextChar()
     } else {
-        panic(fmt.Sprintf("expecting %v, got %v[%v]", string(x), string(this.char), this.index))
+        panic(fmt.Sprintf("expecting '%v', got '%v'[index: %v]", string(x), string(this.char), this.index))
     }
 }
 
@@ -110,6 +110,12 @@ func (this *Lexer) readString() string {
 
 func (this *Lexer) readInt() int {
     var ret bytes.Buffer
+	negative := false
+	if this.match('-') {
+		negative = true
+		this.accept('-')
+	}
+	
     for '0' <= this.char && this.char <= '9' {
         ret.WriteByte(this.char)
         this.nextChar()
@@ -119,6 +125,10 @@ func (this *Lexer) readInt() int {
     if error != nil {
         fmt.Printf("the error is: %v", error)
     }
+	if negative {
+		i -= 2 * i
+	}
+	
     return i
 }
 
@@ -176,7 +186,7 @@ func (this *Lexer) readArray() JSONArray {
 }
 
 //
-func (this *Lexer) readNil() {
+func (this *Lexer) readNull() {
     this.nextChar()
     this.nextChar()
     this.nextChar()
@@ -186,7 +196,7 @@ func (this *Lexer) readNil() {
 func (this *Lexer) readValue() (value interface{}) {
     if this.match('"') {
         value = this.readString()
-    } else if '0' <= this.char && this.char <= '9' {
+    } else if '0' <= this.char && this.char <= '9' || this.match('-'){
         value = this.readInt()
     } else if this.match('t') || this.match('f') {
         value = this.readBoolean()
@@ -196,7 +206,7 @@ func (this *Lexer) readValue() (value interface{}) {
         value = this.readArray()
     } else {
         value = nil
-        this.readNil()
+        this.readNull()
     }
 
     return value
