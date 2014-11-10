@@ -1,9 +1,9 @@
 package gojson
 
 import (
+	"bytes"
 	"fmt"
 	"strconv"
-	"bytes"
 )
 
 type Lexer struct {
@@ -58,28 +58,49 @@ func (this *Lexer) readString() string {
 		var actualChar uint8
 		actualChar = this.char
 		if escaping {
-			switch(this.char) {
+			switch this.char {
 			case '\\':
 				actualChar = '\\'
+				ret.WriteByte(actualChar)
 			case 'b':
 				actualChar = '\b'
+				ret.WriteByte(actualChar)				
 			case 'f':
 				actualChar = '\f'
+				ret.WriteByte(actualChar)				
 			case 'n':
 				actualChar = '\n'
+				ret.WriteByte(actualChar)				
 			case 'r':
 				actualChar = '\r'
+				ret.WriteByte(actualChar)				
 			case 't':
 				actualChar = '\t'
+				ret.WriteByte(actualChar)				
 			case '"':
 				actualChar = '"'
+				ret.WriteByte(actualChar)				
+			case 'u':
+				var unicodeBuf bytes.Buffer
+				this.nextChar()
+				unicodeBuf.WriteByte(this.char)
+				this.nextChar()
+				unicodeBuf.WriteByte(this.char)
+				this.nextChar()
+				unicodeBuf.WriteByte(this.char)
+				this.nextChar()
+				unicodeBuf.WriteByte(this.char)
+				i, _ := strconv.ParseInt(unicodeBuf.String(), 16, 0)
+				i32 := int32(i)
+				str := string([]rune{i32})
+				ret.WriteString(str)
 			}
 
 			escaping = false
+		} else {
+			ret.WriteByte(actualChar)
 		}
-
-		// FIXME deal with unicode
-		ret.WriteByte(actualChar)
+		
 		this.nextChar()
 	}
 
@@ -104,8 +125,8 @@ func (this *Lexer) readInt() int {
 func (this *Lexer) readBoolean() bool {
 	var ret bytes.Buffer
 	if this.match('t') || this.match('f') {
-//		for this.char != ',' && this.char != ' ' && this.char != '}' {
-		for this.char != ',' && !isBlank(this.char) && this.char != '}' && this.char != 0 {			
+		//		for this.char != ',' && this.char != ' ' && this.char != '}' {
+		for this.char != ',' && !isBlank(this.char) && this.char != '}' && this.char != 0 {
 			ret.WriteByte(this.char)
 			this.nextChar()
 		}
@@ -121,7 +142,7 @@ func (this *Lexer) readBoolean() bool {
 func (this *Lexer) readObject() JSONObject {
 	this.skipBlank()
 	this.accept('{')
-	var ret JSONObject;
+	var ret JSONObject
 	ret.pairs = map[string]interface{}{}
 	name, value := this.readPair()
 	ret.pairs[name] = value
@@ -191,12 +212,12 @@ func (this *Lexer) readPair() (name string, value interface{}) {
 }
 
 func (this *Lexer) skipBlank() {
-	for ; isBlank(this.char) ; {
+	for isBlank(this.char) {
 		this.nextChar()
 	}
 }
 
-func isBlank (x uint8) bool {
+func isBlank(x uint8) bool {
 	return x == ' ' || x == '\t' || x == '\r' || x == '\n'
 }
 

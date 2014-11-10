@@ -1,7 +1,6 @@
 package gojson
 
 import (
-	"fmt"
 	"testing"
 )
 
@@ -37,7 +36,6 @@ func TestReadString(t *testing.T) {
 	// test \n
 	lexer = NewLexer(`"hello world\n"`)
 	str = lexer.readString()
-	fmt.Println(str)
 	if str != "hello world\n" {
 		t.Fail()
 	}
@@ -45,12 +43,16 @@ func TestReadString(t *testing.T) {
 	// test \"
 	lexer = NewLexer(`"hello\""`)
 	str = lexer.readString()
-	fmt.Println(str)
 	if str != "hello\"" {
 		t.Fail()
 	}
 
 	// test unicode
+	lexer = NewLexer(`"你好\u554a"`)
+	str = lexer.readString()
+	if str != "你好啊" {
+		t.Fail()
+	}
 }
 
 func TestReadBoolean(t *testing.T) {
@@ -111,7 +113,8 @@ func TestReadObject(t *testing.T) {
 	}
 
 	// test leading and trailing blanks
-	lexer = NewLexer(` {"a": 149} `)
+	lexer = NewLexer(` 
+                      {"a": 149} `)
 	ret = lexer.readObject()
 	if len(ret.pairs) != 1 {
 		t.Fail()
