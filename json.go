@@ -16,7 +16,7 @@ func (this *Lexer) Init(content string) {
 	this.content = content
 	this.index = -1
 	this.char = 99
-	this.next_char()
+	this.nextChar()
 }
 
 func (this *Lexer) match(x uint8) bool {
@@ -25,13 +25,13 @@ func (this *Lexer) match(x uint8) bool {
 
 func (this *Lexer) accept(x uint8) {
 	if this.match(x) {
-		this.next_char()
+		this.nextChar()
 	} else {
 		panic(fmt.Sprintf("expecting %v, got %v[%v]", string(x), string(this.char), this.index))
 	}
 }
 
-func (this *Lexer) next_char() {
+func (this *Lexer) nextChar() {
 	this.index += 1
 	if this.index < len(this.content) {
 		this.char = this.content[this.index]
@@ -45,7 +45,7 @@ func (this *Lexer) readString() (ret string) {
 	this.accept('"')
 	for !this.match('"') {
 		ret += string(this.char)
-		this.next_char()
+		this.nextChar()
 	}
 
 	this.accept('"')
@@ -56,7 +56,7 @@ func (this *Lexer) readInt() int {
 	ret := ""
 	for '0' <= this.char && this.char <= '9' {
 		ret += string(this.char)
-		this.next_char()
+		this.nextChar()
 	}
 
 	i, error := strconv.Atoi(ret)
@@ -71,7 +71,7 @@ func (this *Lexer) readBoolean() bool {
 	if this.char == 't' || this.char == 'f' {
 		for this.char != ',' && this.char != ' ' && this.char != '}' {
 			ret += string(this.char)
-			this.next_char()
+			this.nextChar()
 		}
 	}
 
@@ -121,9 +121,9 @@ func (this *Lexer) readArray() JSONArray {
 
 //
 func (this *Lexer) readNil() {
-	this.next_char()
-	this.next_char()
-	this.next_char()
+	this.nextChar()
+	this.nextChar()
+	this.nextChar()
 }
 
 //
@@ -157,7 +157,7 @@ func (this *Lexer) readPair() (name string, value interface{}) {
 
 func (this *Lexer) skipBlank() {
 	for ; isBlank(this.char) ; {
-		this.next_char()
+		this.nextChar()
 	}
 }
 
