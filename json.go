@@ -114,31 +114,22 @@ func (this *Lexer) readString() string {
 			continue
 		}
 
-		var actualChar uint8
-		actualChar = this.char
 		if escaping {
 			switch this.char {
 			case '\\':
-				actualChar = '\\'
-				ret.WriteByte(actualChar)
+				ret.WriteByte('\\')
 			case 'b':
-				actualChar = '\b'
-				ret.WriteByte(actualChar)
+				ret.WriteByte('\b')
 			case 'f':
-				actualChar = '\f'
-				ret.WriteByte(actualChar)
+				ret.WriteByte('\f')
 			case 'n':
-				actualChar = '\n'
-				ret.WriteByte(actualChar)
+				ret.WriteByte('\n')
 			case 'r':
-				actualChar = '\r'
-				ret.WriteByte(actualChar)
+				ret.WriteByte('\r')
 			case 't':
-				actualChar = '\t'
-				ret.WriteByte(actualChar)
+				ret.WriteByte('\t')
 			case '"':
-				actualChar = '"'
-				ret.WriteByte(actualChar)
+				ret.WriteByte('"')
 			case 'u':
 				i32 := int32(0)
 				for i := 0; i < 4; i++ {
@@ -155,7 +146,7 @@ func (this *Lexer) readString() string {
 
 			escaping = false
 		} else {
-			ret.WriteByte(actualChar)
+			ret.WriteByte(this.char)
 		}
 
 		this.nextChar()

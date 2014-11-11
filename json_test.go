@@ -174,4 +174,19 @@ func TestFormatJSONObject(t *testing.T) {
 	f := NewFormatter()
 	f.formatJSONObject(ret)
 	fmt.Println(f.String())
+	// 	expectedText := `{
+	// 	"a": 123.4567,
+	// 	"d": 123,
+	// 	"e": [1,2,"3"],
+	// 	"f": {
+	// 		"f1": 1,
+	// 		"f2": 2.34,
+	// 		"f3": "f3 is good"
+	// 	},
+	// 	"b": false,
+	// 	"c": "hello"
+	// }`
+	// 	if f.String() != expectedText {
+	// 		t.Fail()
+	// 	}
 }
