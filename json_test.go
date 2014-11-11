@@ -1,6 +1,7 @@
 package gojson
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -132,9 +133,14 @@ func TestReadObject(t *testing.T) {
 	if len(ret.pairs) != 1 {
 		t.Fail()
 	}
-	// for name, value := range ret.pairs {
-	//  fmt.Println(name, ": ", value)
-	// }
+
+	// test blanks between pairs
+	lexer = NewLexer(`{"a":1, "b": 2} `)
+	ret = lexer.readObject()
+	if len(ret.pairs) != 2 {
+		t.Fail()
+	}
+
 }
 
 func TestReadNestedObject(t *testing.T) {
@@ -143,9 +149,6 @@ func TestReadNestedObject(t *testing.T) {
 	if &ret == nil {
 		t.Fail()
 	}
-	// for name, value := range ret.pairs {
-	//  fmt.Println(name, ": ", value)
-	// }
 }
 
 func TestReadArray(t *testing.T) {
@@ -162,4 +165,13 @@ func TestParse(t *testing.T) {
 	if &ret == nil {
 		t.Fail()
 	}
+}
+
+func TestFormatJSONObject(t *testing.T) {
+	lexer := NewLexer(`{"b":false,"c":"hello", "a":123.4567, "d": 123, "e":[1,2,"3"], "f": {"f1": 1, "f2": 2.34, "f3": "f3 is good"}}`)
+	ret := lexer.readObject()
+
+	f := NewFormatter()
+	f.formatJSONObject(ret)
+	fmt.Println(f.String())
 }

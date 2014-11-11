@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"strconv"
+	"strings"
 )
 
 type JSONObject struct {
@@ -36,6 +37,10 @@ func (n Number) Float64() float64 {
 	}
 
 	return f
+}
+
+func (this *Number) FloatPrecision() int {
+	return len(this.data) - strings.Index(this.data, ".") - 1
 }
 
 func (n Number) Int64() int64 {
@@ -217,7 +222,9 @@ func (this *Lexer) readObject() JSONObject {
 	ret.pairs[name] = value
 
 	for this.match(',') {
+		this.skipBlank()
 		this.accept(',')
+		this.skipBlank()
 		name, value = this.readPair()
 		ret.pairs[name] = value
 	}
@@ -244,14 +251,12 @@ func (this *Lexer) readArray() JSONArray {
 	return ret
 }
 
-//
 func (this *Lexer) readNull() {
 	this.nextChar()
 	this.nextChar()
 	this.nextChar()
 }
 
-//
 func (this *Lexer) readValue() (value interface{}) {
 	if this.match('"') {
 		value = this.readString()
@@ -302,4 +307,93 @@ func Parse(str string) interface{} {
 		return lexer.readArray()
 	}
 	return nil
+}
+
+type Formatter struct {
+	tabCnt int
+	buf    bytes.Buffer
+}
+
+func (this *Formatter) incrTabCnt() {
+	this.tabCnt++
+}
+
+func (this *Formatter) decrTabCnt() {
+	this.tabCnt--
+}
+
+func (this *Formatter) String() string {
+	return this.buf.String()
+}
+
+func NewFormatter() *Formatter {
+	ret := new(Formatter)
+	ret.tabCnt = 0
+
+	return ret
+}
+
+func (this *Formatter) newline() {
+	this.buf.WriteByte('\n')
+	for i := 0; i < this.tabCnt; i++ {
+		this.buf.WriteByte('\t')
+	}
+}
+
+func (this *Formatter) formatJSONObject(obj JSONObject) {
+	this.buf.WriteByte('{')
+	this.incrTabCnt()
+	i := 0
+	for name, value := range obj.pairs {
+		if i > 0 {
+			this.buf.WriteByte(',')
+		}
+		this.newline()
+		this.formatPair(name, value)
+		i++
+	}
+	this.decrTabCnt()
+	this.newline()
+	this.buf.WriteByte('}')
+}
+
+func (this *Formatter) formatJSONArray(arr JSONArray) {
+	this.buf.WriteByte('[')
+	for i, value := range arr.values {
+		this.formatValue(value)
+		if i < len(arr.values)-1 {
+			this.buf.WriteByte(',')
+		}
+	}
+
+	this.buf.WriteByte(']')
+}
+
+func (this *Formatter) formatValue(value interface{}) {
+	switch value.(type) {
+	case string:
+		this.buf.WriteByte('"')
+		this.buf.WriteString(value.(string))
+		this.buf.WriteByte('"')
+	case bool:
+		this.buf.WriteString(strconv.FormatBool(value.(bool)))
+	case JSONObject:
+		this.formatJSONObject(value.(JSONObject))
+	case JSONArray:
+		this.formatJSONArray(value.(JSONArray))
+	case Number:
+		num := value.(Number)
+		if num.isFloat {
+			this.buf.WriteString(strconv.FormatFloat(num.Float64(), 'f', num.FloatPrecision(), 64))
+		} else {
+			this.buf.WriteString(strconv.FormatInt(num.Int64(), 10))
+		}
+	}
+}
+
+func (this *Formatter) formatPair(name string, value interface{}) {
+	this.buf.WriteByte('"')
+	this.buf.WriteString(name)
+	this.buf.WriteString("\": ")
+	this.formatValue(value)
 }
