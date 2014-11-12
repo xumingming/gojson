@@ -92,15 +92,34 @@ func TestReadBoolean(t *testing.T) {
 	}
 }
 
-func TestReadNil(t *testing.T) {
+func TestReadNull(t *testing.T) {
+	var lexer *Lexer
+	var ret interface{}
 
-}
+	lexer = NewLexer(`null`)
+	ret = lexer.readNull()
 
-func TestReadValue(t *testing.T) {
-
+	if ret != nil {
+		t.Fail()
+	}
 }
 
 func TestReadPair(t *testing.T) {
+	var lexer *Lexer
+	lexer = NewLexer(`"a":123`)
+	name, value := lexer.readPair()
+
+	if name != "a" || value.(Number).Int64() != int64(123) {
+		t.Fail()
+	}
+
+	// test blanks
+	lexer = NewLexer(`"a" : 123`)
+	name, value = lexer.readPair()
+
+	if name != "a" || value.(Number).Int64() != int64(123) {
+		t.Fail()
+	}
 
 }
 

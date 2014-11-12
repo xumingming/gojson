@@ -247,10 +247,13 @@ func (this *Lexer) readArray() JSONArray {
 	return ret
 }
 
-func (this *Lexer) readNull() {
-	this.nextChar()
-	this.nextChar()
-	this.nextChar()
+func (this *Lexer) readNull() interface{} {
+	this.accept('n')
+	this.accept('u')
+	this.accept('l')
+	this.accept('l')
+
+	return nil
 }
 
 func (this *Lexer) readValue() (value interface{}) {
