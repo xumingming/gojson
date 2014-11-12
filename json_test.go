@@ -171,22 +171,15 @@ func TestFormatJSONObject(t *testing.T) {
 	lexer := NewLexer(`{"b":false,"c":"hello", "a":123.4567, "d": 123, "e":[1,2,"3"], "f": {"f1": 1, "f2": 2.34, "f3": "f3 is good"}}`)
 	ret := lexer.readObject()
 
-	f := NewFormatter()
+	var f Formatter
 	f.formatJSONObject(ret)
 	fmt.Println(f.String())
-	// 	expectedText := `{
-	// 	"a": 123.4567,
-	// 	"d": 123,
-	// 	"e": [1,2,"3"],
-	// 	"f": {
-	// 		"f1": 1,
-	// 		"f2": 2.34,
-	// 		"f3": "f3 is good"
-	// 	},
-	// 	"b": false,
-	// 	"c": "hello"
-	// }`
-	// 	if f.String() != expectedText {
-	// 		t.Fail()
-	// 	}
+}
+
+//
+func TestJSONObjectString(t *testing.T) {
+	lexer := NewLexer(`{"b":false,"c":"hello", "a":123.4567, "d": 123, "e":[1,2,"3"], "f": {"f1": 1, "f2": 2.34, "f3": "f3 is good"}}`)
+	ret := lexer.readObject()
+
+	fmt.Println(ret.String())
 }

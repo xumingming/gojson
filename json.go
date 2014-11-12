@@ -7,27 +7,13 @@ import (
 	"strings"
 )
 
-type JSONObject struct {
-	pairs map[string]interface{}
-}
-
-type JSONArray struct {
-	values []interface{}
-}
-
 type Number struct {
-	data     string
+	// the actual data which holds the number
+	data string
+	// whether the number is negative
 	negative bool
-	isFloat  bool
-}
-
-func NewNumber(data string, negative bool, isFloat bool) Number {
-	var ret Number
-	ret.data = data
-	ret.negative = negative
-	ret.isFloat = isFloat
-
-	return ret
+	// whether the number is a floating point number
+	isFloat bool
 }
 
 func (n Number) Float64() float64 {
@@ -52,8 +38,27 @@ func (n Number) Int64() int64 {
 	return i
 }
 
+type JSONObject struct {
+	pairs map[string]interface{}
+}
+
+func (this JSONObject) String() string {
+	f := Formatter{}
+	f.formatJSONObject(this)
+	return f.String()
+}
+
+type JSONArray struct {
+	values []interface{}
+}
+
+func (this JSONArray) String() string {
+	f := Formatter{}
+	f.formatJSONArray(this)
+	return f.String()
+}
+
 type Lexer struct {
-	/* a very good string */
 	content string
 	index   int
 	char    uint8
@@ -184,7 +189,7 @@ func (this *Lexer) readNumber() Number {
 		}
 	}
 
-	return NewNumber(ret.String(), negative, isFloat)
+	return Number{ret.String(), negative, isFloat}
 }
 
 func (this *Lexer) readBoolean() bool {
@@ -315,13 +320,6 @@ func (this *Formatter) decrTabCnt() {
 
 func (this *Formatter) String() string {
 	return this.buf.String()
-}
-
-func NewFormatter() *Formatter {
-	ret := new(Formatter)
-	ret.tabCnt = 0
-
-	return ret
 }
 
 func (this *Formatter) newline() {
